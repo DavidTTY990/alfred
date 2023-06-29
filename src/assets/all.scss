@@ -1,0 +1,9 @@
+// Required
+@import "~bootstrap/scss/functions";
+@import "./helpers/variables";
+@import "~bootstrap/scss/mixins";
+@import "~bootstrap/scss/maps";
+
+// Custom CSS
+// Option A: Include all of Bootstrap
+@import "~bootstrap/scss/bootstrap";
