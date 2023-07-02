@@ -10,36 +10,33 @@
             data-bs-dismiss="modal"
             aria-label="Close"
             id="closeModal"
+            @click="hideModal"
           ></button>
         </div>
-        <div class="modal-body" v-if="pageStatus == 'login'">
-          <p class="text-center">輸入帳號與密碼</p>
+        <div class="modal-body" v-if="loginPageStatus == 'login'">
           <div class="container-fluid d-flex flex-column align-items-center">
+            <p class="text-center">輸入帳號與密碼</p>
             <div class="mb-3">
-              <label
-                for="exampleFormControlInput1"
-                class="form-label text-center"
+              <label for="loginAccount" class="form-label text-center"
                 >Account
                 <input
                   type="email"
                   class="form-control"
-                  id="exampleFormControlInput1"
+                  id="loginAccount"
                   placeholder="name@example.com"
-                  v-model="loginAccount"
+                  v-model="user.loginAccount"
                 />
               </label>
             </div>
             <div class="mb-4">
-              <label
-                for="exampleFormControlInput1"
-                class="form-label text-center"
+              <label for="loginPassword" class="form-label text-center"
                 >Password
                 <input
                   type="password"
                   class="form-control"
-                  id="exampleFormControlInput1"
+                  id="loginPassword"
                   placeholder="**********"
-                  v-model="loginPassword"
+                  v-model="user.loginPassword"
                 />
               </label>
             </div>
@@ -53,48 +50,87 @@
               </button>
             </div>
             <div>
-              <a href="#" class="link-dark" @click="pageStatus = 'signIn'">還沒有帳號嗎？馬上註冊！</a>
+              <a href="#" class="link-dark" @click="loginPageStatus = 'signIn'"
+                >還沒有帳號嗎？馬上註冊！</a
+              >
             </div>
           </div>
         </div>
-        <div class="modal-body" v-if="pageStatus == 'signIn'">
-          <p class="text-center">輸入帳號與密碼</p>
+        <div class="modal-body" v-else>
           <div class="container-fluid d-flex flex-column align-items-center">
+            <p class="text-center">輸入帳號與密碼</p>
             <div class="mb-3">
-              <label
-                for="exampleFormControlInput1"
-                class="form-label text-center"
+              <label for="signInAccount" class="form-label text-center"
                 >Account
                 <input
                   type="email"
                   class="form-control"
-                  id="exampleFormControlInput1"
+                  id="signInAccount"
                   placeholder="name@example.com"
-                  v-model="signInAccount"
+                  v-model="user.signUpAccount"
                 />
               </label>
             </div>
-            <div class="mb-4">
-              <label
-                for="exampleFormControlInput1"
-                class="form-label text-center"
+            <div class="mb-3">
+              <label for="signInPassword" class="form-label text-center"
                 >Password
                 <input
                   type="password"
                   class="form-control"
-                  id="exampleFormControlInput1"
+                  id="signInPassword"
                   placeholder="**********"
-                  v-model="signInPassword"
+                  v-model="user.signUpPassword"
                 />
               </label>
             </div>
+            <div class="mb-4">
+              <label for="signInNickname" class="form-label text-center"
+                >您的暱稱
+                <input
+                  type="text"
+                  class="form-control"
+                  id="signInNickname"
+                  placeholder="Your Nickname"
+                  v-model="user.userNickname"
+                />
+              </label>
+            </div>
+            <a href="#" class="link-dark" @click="loginPageStatus = 'login'"
+              >我有帳號了，回到登入</a
+            >
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-bs-dismiss="modal"
+            @click="login(this.user.loginAccount, this.user.loginPassword)"
+            v-if="loginPageStatus == 'login'"
+          >
             登入
           </button>
-          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-bs-dismiss="modal"
+            @click="
+              signUp(
+                this.user.signUpAccount,
+                this.user.userNickname,
+                this.user.signUpPassword
+              )
+            "
+            v-else
+          >
+            註冊
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-bs-dismiss="modal"
+            @click="hideModal"
+          >
             取消
           </button>
         </div>
@@ -107,34 +143,74 @@
 import Modal from "bootstrap/js/dist/modal";
 
 export default {
-  props: ["isModalOpen"],
   data() {
     return {
       modal: {},
-      loginAccount: "",
-      loginPassword: "",
-      signInAccount: "",
-      signInPassword: "",
-      pageStatus: 'login'
+      loginPageStatus: "login",
+      apiUrl: "https://todoo.5xcamp.us",
+      user: {
+        loginAccount: "",
+        loginPassword: "",
+        signUpAccount: "",
+        signUpPassword: "",
+        userNickname: "",
+      },
     };
   },
-  mothods: {
+  methods: {
     showModal() {
       this.modal.show();
     },
     hideModal() {
       this.modal.hide();
+      this.loginPageStatus = 'login'
     },
-
+    signUp(acc, nickName, pwd) {
+      this.$http
+        .post(`${this.apiUrl}/users`, {
+          user: {
+            email: acc,
+            nickname: nickName,
+            password: pwd,
+          },
+        })
+        .then((res) => {
+          console.log(res);
+          this.user.signUpAccount = "";
+          this.user.signUpPassword = "";
+          this.$router.push("/dashboardpage/overview");
+        })
+        .catch((error) => console.log(error.response));
+    },
+    login(acc, pwd) {
+      this.$http
+        .post(`${this.apiUrl}/users/sign_in`, {
+          user: {
+            email: acc,
+            password: pwd,
+          },
+        })
+        .then((res) => {
+          console.log(res);
+          this.$http.defaults.headers.common["Authorization"] =
+            res.headers.authorization;
+          this.user.loginAccount = "";
+          this.user.loginPassword = "";
+          this.$router.push("/dashboardpage/overview");
+        })
+        .catch((error) => console.log(error.response));
+    },
   },
   mounted() {
     this.modal = new Modal(this.$refs.modal);
+    this.$emitter.on("openModal", () => {
+      this.showModal();
+    });
   },
-  watch: {
-    isModalOpen() {
-      // console.log(newVal, oldVal);
-      this.modal.show();
-    },
+  beforeUnmount() {
+    this.$emitter.off("openModal", () => {
+      this.showModal();
+    });
   },
 };
 </script>

@@ -4,7 +4,7 @@
       <div class="row bg-dark text-light p-4">
         <div class="col">
           <h3 class="dashboard-title">The Dashboard Page.</h3>
-          <div class="weather-widget"></div>
+          <!-- <div class="weather-widget"></div> -->
         </div>
       </div>
     </div>
@@ -28,11 +28,12 @@
               class="list-group-item list-group-item-action"
               >Schedule</router-link
             >
-            <router-link
-              to="/"
+            <button
               class="list-group-item list-group-item-danger list-group-item-action"
-              >Log out</router-link
+              @click="signOut"
             >
+              Log out
+            </button>
           </div>
         </div>
       </div>
@@ -43,6 +44,34 @@
     <FooterContainer />
   </div>
 </template>
+
+<script>
+import FooterContainer from "@/components/FooterContainer.vue";
+
+export default {
+  components: {
+    FooterContainer,
+  },
+  data() {
+    return {
+      apiUrl: "https://todoo.5xcamp.us",
+    };
+  },
+  methods: {
+    signOut() {
+      this.$http
+        .delete(`${this.apiUrl}/users/sign_out`)
+        .then((res) => {
+          console.log(res);
+          this.$router.push('/')
+          // taskData = [];
+          this.$http.defaults.headers.common['Authorization'] = "";
+        })
+        .catch((error) => console.log(error.response));
+    },
+  },
+};
+</script>
 
 <style scoped>
 .dashboard-title {
@@ -82,13 +111,3 @@
   width: 50%;
 }
 </style>
-
-<script>
-import FooterContainer from "@/components/FooterContainer.vue";
-
-export default {
-  components: {
-    FooterContainer,
-  },
-};
-</script>

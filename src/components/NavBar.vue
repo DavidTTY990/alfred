@@ -25,7 +25,7 @@
         <button
           class="btn btn-light me-3"
           type="button"
-          @click="isModalOpen = !isModalOpen"
+          @click="openLoginModal"
         >
           Log in
         </button>
@@ -33,20 +33,19 @@
       </div>
     </div>
   </nav>
-  <LoginPageModal ref="loginPageModal" :isModalOpen="isModalOpen"></LoginPageModal>
 </template>
 
 <script>
-import LoginPageModal from "@/components/LoginPageModal.vue";
 
 export default {
-  components: {
-    LoginPageModal,
-  },
   data() {
     return {
-      isModalOpen: false,
     };
   },
+  methods: {
+    openLoginModal() {
+      this.$emitter.emit("openModal")
+    }
+  }
 };
 </script>

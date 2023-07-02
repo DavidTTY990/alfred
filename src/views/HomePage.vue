@@ -15,8 +15,7 @@
             type="text"
             class="landing-search-container-input"
             id="landing-search-container-input"
-            placeholder="  輸入您的稱謂"
-            v-model="userName"
+            placeholder="   輸入您的稱謂"
           />
         </label>
       </div>
@@ -28,7 +27,7 @@
         <button
           type="button"
           class="landing-locate-position-btn custom-map-control-button btn btn-dark"
-          @click="isModalOpen = !isModalOpen"
+          @click="openLoginModal"
         >
           立刻使用！
         </button>
@@ -39,7 +38,7 @@
     </div>
     <FooterContainer />
   </div>
-  <LoginPageModal ref="loginPageModal" :isModalOpen="isModalOpen"></LoginPageModal>
+  <LoginPageModal />
 </template>
 
 <script>
@@ -58,8 +57,11 @@ export default {
   },
   data() {
     return {
-      isModalOpen: false,
-      userName: "",
+    }
+  },
+  methods: {
+    openLoginModal() {
+      this.$emitter.emit("openModal");
     }
   },
 };
@@ -90,12 +92,17 @@ export default {
   font-size: 25px;
   margin-left: 10%;
 }
+
+.landing-search-container-content input[type=text] {
+  
+}
 .landing-search-container-input {
   width: 32vw;
   height: 6vh;
   border-radius: 10px;
   margin-left: 12%;
 }
+
 .landing-locate-position-container {
   width: 32.5vw;
   margin-top: 3%;
