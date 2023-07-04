@@ -154,6 +154,7 @@ export default {
         signUpAccount: "",
         signUpPassword: "",
         userNickname: "",
+        customUserName: "",
       },
     };
   },
@@ -163,7 +164,7 @@ export default {
     },
     hideModal() {
       this.modal.hide();
-      this.loginPageStatus = 'login'
+      this.loginPageStatus = "login";
     },
     signUp(acc, nickName, pwd) {
       this.$http
@@ -176,6 +177,8 @@ export default {
         })
         .then((res) => {
           console.log(res);
+          this.$http.defaults.headers.common["Authorization"] =
+            res.headers.authorization;
           this.user.signUpAccount = "";
           this.user.signUpPassword = "";
           this.$router.push("/dashboardpage/overview");
@@ -192,13 +195,17 @@ export default {
         })
         .then((res) => {
           console.log(res);
+          this.user.customUserName = res.data.nickname;
+          this.$emitter.emit("customUserName", this.user.customUserName)
           this.$http.defaults.headers.common["Authorization"] =
             res.headers.authorization;
           this.user.loginAccount = "";
           this.user.loginPassword = "";
           this.$router.push("/dashboardpage/overview");
         })
-        .catch((error) => console.log(error.response));
+        .catch((error) => {
+          console.log(error.response);
+        });
     },
   },
   mounted() {

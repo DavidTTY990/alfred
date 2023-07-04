@@ -4,19 +4,19 @@
     <div class="card-container">
       <div class="card-1">
         <h3>未完成項目</h3>
-        <p>0</p>
+        <p>{{ dashboard.unfinishedTasksNum }}</p>
       </div>
       <div class="card-2">
         <h3>已完成項目</h3>
-        <p>5</p>
+        <p>{{ dashboard.finishedTasksNum }}</p>
       </div>
       <div class="card-3">
         <h3>項目完成率</h3>
-        <p>0%</p>
+        <p>{{ dashboard.tasksFinishedRate }}%</p>
       </div>
       <div class="card-4">
         <h3>下一項待辦</h3>
-        <p>0</p>
+        <p>幫貓貓買凍乾</p>
       </div>
       <div class="card-5">
         <h3>圖表一</h3>
@@ -29,6 +29,59 @@
     </div>
   </div>
 </template>
+
+<script>
+export default {
+  data() {
+    return {
+      dashboard: {
+        unfinishedTasksNum: "",
+        finishedTasksNum: "",
+        tasksFinishedRate: "",
+        nextToDoTasks: "",
+      },
+      apiUrl: "https://todoo.5xcamp.us",
+      taskData: [],
+    };
+  },
+  methods: {
+    getToDos() {
+      return new Promise((resolve, reject) => {
+        this.$http
+          .get(`${this.apiUrl}/todos`)
+          .then((res) => {
+            console.log(res.data.todos);
+            this.taskData = res.data.todos;
+            this.countUnfinishiedTasks();
+            this.countFinishedTasks();
+            this.countTaskFinishedRate();
+            resolve(res);
+          })
+          .catch((error) => {
+            console.log(error.response);
+            reject(error.response);
+          });
+      });
+    },
+    countUnfinishiedTasks() {
+      let unfinishedTasks = this.taskData.filter(item => item.completed_at == null )
+      this.dashboard.unfinishedTasksNum = unfinishedTasks.length;
+    },
+    countFinishedTasks() {
+      let finishedTasks = this.taskData.filter(item => item.completed_at != null)
+      this.dashboard.finishedTasksNum = finishedTasks.length;
+    },
+    countTaskFinishedRate() {
+      let tasksFinishedRateNum = (this.dashboard.finishedTasksNum / this.taskData.length) * 100;
+      this.dashboard.tasksFinishedRate = tasksFinishedRateNum;
+    }
+  },
+  created() {
+    console.log("overview page is created!")
+    this.getToDos();
+  }
+};
+</script>
 
 <style scoped>
 .overview-title {
@@ -65,9 +118,8 @@
 .card-3,
 .card-4,
 .card-5,
-.card-6
-p {
-  font-size: 30px
+.card-6 p {
+  font-size: 30px;
 }
 
 .card-1 {

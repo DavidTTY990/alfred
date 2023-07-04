@@ -38,45 +38,19 @@
           </ul>
           <div class="cart_content">
             <ul class="list">
-              <div class="head-bar-container" v-if="taskData != ''">
-                <div class="taskName">Task Name</div>
-                <div class="category-tag">Categories</div>
-                <div class="deadLine">Deadline</div>
-                <div class="createTime">Created Time</div>
-              </div>
-              <li
-                v-for="(item, index) in filteredData"
-                :key="item.id"
-                @click="toggleTask(item.id)"
-              > {{ index }}
-                <div class="taskItem-container">
-                  <label class="checkbox" for="">
-                    <input type="checkbox" />
-                    <span class="cart_content_taskName">{{ item.name }}</span>
-                  </label>
-                  <span class="cart_content_categories_tag">
-                    <label for="cars">
-                      <select name="cars" id="cars" v-model="taskTag">
-                        <option value="volvo">Volvo</option>
-                        <option value="saab">Saab</option>
-                        <option value="mercedes">Mercedes</option>
-                        <option value="audi">Audi</option>
-                      </select>
-                    </label>
-                  </span>
-                  <span class="cart_content_deadline">
-                    <VueDatePicker
-                      v-model="taskDeadLine"
-                      :teleport="true"
-                      placeholder="Select Date"
-                      :offset="10"
-                      @change="setDeadLine(index)"
-                    ></VueDatePicker>
-                  </span>
-                  <span class="cart_content_createdTime">{{
-                    item.createdTime
-                  }}</span>
-                </div>
+              <li v-for="item in filteredData" :key="item.id">
+                <label class="checkbox" for="checkbox">
+                  <div class="taskItem-container" @click="toggleTask(item.id)">
+                    <input
+                      type="checkbox"
+                      name="checkbox"
+                      :checked="item.completed_at"
+                    />
+                    <span class="cart_content_taskName"
+                      >{{ item.content }}
+                    </span>
+                  </div>
+                </label>
                 <a
                   href="#"
                   class="delete"
@@ -92,6 +66,7 @@
         <a href="#" @click.prevent="deleteAllFinishedTasks"
           >Clear All Finished Tasks</a
         >
+        {{ test }}
       </div>
     </div>
   </div>
@@ -102,18 +77,13 @@
 </style>
 
 <script>
-import VueDatePicker from "@vuepic/vue-datepicker";
-import "@vuepic/vue-datepicker/dist/main.css";
-
 export default {
-  components: { VueDatePicker },
+  props: ["test"],
   data() {
     return {
+      apiUrl: "https://todoo.5xcamp.us",
       taskData: [],
       taskInput: "",
-      taskTag: "",
-      taskDeadLine: null,
-      taskContent: {},
       status: "ALL",
       tabStatus: {
         ALL: true,
@@ -124,39 +94,26 @@ export default {
   },
   methods: {
     addTask() {
+      console.log("addTask!");
       if (this.taskInput.trim() == "") {
         alert("Task name should not be empty！");
         return;
       } else {
-        this.taskContent = {
-          name: this.taskInput,
-          isChecked: false,
-          id: new Date().getTime(),
-          createdTime: new Date().toLocaleString(),
-        };
-        this.taskData.push(this.taskContent);
+        this.addToDos(this.taskInput);
         this.taskContent = {};
         this.taskInput = "";
       }
     },
+
     deleteTask(id) {
       this.taskData.forEach((item, i) => {
         if (item.id == id) {
           this.taskData.splice(i, 1);
+          this.delToDos(id);
         }
       });
     },
-    toggleTask(id) {
-      this.taskData.forEach((item) => {
-        if (item.id == id) {
-          if (item.isChecked == false) {
-            item.isChecked = true;
-          } else {
-            item.isChecked = false;
-          }
-        }
-      });
-    },
+
     toggleTab(status) {
       Object.keys(this.tabStatus).forEach((item) => {
         this.tabStatus[item] = false;
@@ -164,11 +121,7 @@ export default {
       this.tabStatus[status] = true;
       this.status = status;
     },
-    // setDeadLine(index) {
-    //   if (this.filteredData[index] == index) {
-    //     this.filteredData[index].taskDeadLine = this.taskDeadLine;
-    //   }
-    // },
+
     deleteAllFinishedTasks() {
       this.taskData.forEach((item, i) => {
         if (item.isChecked == true) {
@@ -176,23 +129,94 @@ export default {
         }
       });
     },
+
+    // AJAX methods
+    getToDos() {
+      return new Promise((resolve, reject) => {
+        this.$http
+          .get(`${this.apiUrl}/todos`)
+          .then((res) => {
+            console.log(res.data.todos);
+            this.taskData = res.data.todos;
+            resolve(res);
+          })
+          .catch((error) => {
+            console.log(error.response);
+            reject(error.response);
+          });
+      });
+    },
+
+    addToDos(toDoContent) {
+      return new Promise((resolve, reject) => {
+        this.$http
+          .post(`${this.apiUrl}/todos`, {
+            todo: {
+              content: toDoContent,
+            },
+          })
+          .then((res) => {
+            console.log(res.data);
+            this.getToDos();
+            resolve(res.data);
+          })
+          .catch((error) => {
+            console.log(error.response);
+            reject(error.response);
+          });
+      });
+    },
+    toggleTask(taskId) {
+      return new Promise((resolve, reject) => {
+        this.$http
+          .patch(`${this.apiUrl}/todos/${taskId}/toggle`, {})
+          .then((res) => {
+            console.log(res.data);
+            resolve(res.data);
+          })
+          .catch((error) => {
+            console.log(error.response);
+            this.getToDos();
+            reject(error.response);
+          });
+      });
+    },
+    delToDos(taskId) {
+      return new Promise((resolve, reject) => {
+        this.$http
+          .delete(`${this.apiUrl}/todos/${taskId}`)
+          .then((res) => {
+            console.log(res.data);
+            resolve();
+          })
+          .catch((error) => {
+            console.log(error.response);
+            reject(error.response);
+          });
+      });
+    },
   },
   computed: {
     filteredData() {
+      console.log("filteredData!");
+      console.log(this.taskData.filter((item) => item.completed_at != null));
       if (this.status === "DONE") {
-        return this.taskData.filter((it) => it.isChecked === true);
+        return this.taskData.filter((item) => item.completed_at != null);
       } else if (this.status === "WIP") {
-        return this.taskData.filter((it) => it.isChecked === false);
+        return this.taskData.filter((item) => item.completed_at == null);
       } else {
         return this.taskData;
       }
     },
     countUnfinishedTasks() {
       let unfinishedTask = this.taskData.filter((item) => {
-        return item.isChecked == false;
+        return item.completed_at == null;
       });
       return unfinishedTask.length + " Unfinished tasks";
     },
+  },
+  created() {
+    this.getToDos();
   },
 };
 </script>

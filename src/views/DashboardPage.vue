@@ -11,8 +11,8 @@
     <div class="dashboard-content d-flex justify-content-between">
       <div class="info-menu-container">
         <div class="user-info-container d-flex flex-column align-items-center">
-          <div class="user-info-title">Hello, David Tsai</div>
-          <div class="user-img"></div>
+          <div class="user-info-title">{{ receivedUserName }}</div>
+          <div class="user-img" @click="test"></div>
         </div>
         <div
           class="list-group-container mt-5 text-center d-flex flex-column align-items-center"
@@ -38,7 +38,7 @@
         </div>
       </div>
       <div class="router-view-container w-75 mt-3">
-        <router-view></router-view>
+        <router-view :test="taskData"></router-view>
       </div>
     </div>
     <FooterContainer />
@@ -55,6 +55,8 @@ export default {
   data() {
     return {
       apiUrl: "https://todoo.5xcamp.us",
+      taskData: ["testtesttest"],
+      receivedUserName: "",
     };
   },
   methods: {
@@ -63,12 +65,23 @@ export default {
         .delete(`${this.apiUrl}/users/sign_out`)
         .then((res) => {
           console.log(res);
-          this.$router.push('/')
-          // taskData = [];
-          this.$http.defaults.headers.common['Authorization'] = "";
+          this.$router.push("/");
+          this.taskData = [];
+          this.$http.defaults.headers.common["Authorization"] = "";
         })
         .catch((error) => console.log(error.response));
     },
+    test() {
+      console.log(this.receivedUserName);
+    },
+  },
+  created() {
+    console.log("dashboardpage is created!");
+    this.$emitter.on("customUserName", (name) => {
+      console.log(name)
+      this.receivedUserName = name;
+      // console.log(this.receivedUserName)
+    })
   },
 };
 </script>
