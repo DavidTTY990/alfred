@@ -210,14 +210,10 @@ export default {
   },
   mounted() {
     this.modal = new Modal(this.$refs.modal);
-    this.$emitter.on("openModal", () => {
-      this.showModal();
-    });
+    this.$emitter.on("openModal", this.showModal)
   },
   beforeUnmount() {
-    this.$emitter.off("openModal", () => {
-      this.showModal();
-    });
+    this.$emitter.off("openModal", this.showModal)
   },
 };
 </script>
