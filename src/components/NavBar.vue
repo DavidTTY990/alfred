@@ -45,6 +45,9 @@ export default {
   methods: {
     openLoginModal() {
       this.$emitter.emit("openModal")
+    },
+    openSignUpModal() {
+      this.$emitter.emit("openModal")
     }
   }
 };

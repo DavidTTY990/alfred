@@ -23,6 +23,11 @@ const routes = [
       },
     ],
   },
+  {
+    path: '/test',
+    name: 'testVeevalidate',
+    component: () => import('../views/TestVeevalidate.vue')
+  },
 ];
 
 const router = createRouter({

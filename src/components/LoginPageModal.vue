@@ -41,13 +41,13 @@
               </label>
             </div>
             <div class="mb-3 w-50">
-              <button class="btn btn-bright border w-100" type="button">
+              <!-- <button class="btn btn-bright border w-100" type="button">
                 <img
                   src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
                   alt="google-icon"
                   class="w-25 me-2"
                 />使用 Google 登入
-              </button>
+              </button> -->
             </div>
             <div>
               <a href="#" class="link-dark" @click="loginPageStatus = 'signIn'"
@@ -56,6 +56,7 @@
             </div>
           </div>
         </div>
+        
         <div class="modal-body" v-else>
           <div class="container-fluid d-flex flex-column align-items-center">
             <p class="text-center">輸入帳號與密碼</p>

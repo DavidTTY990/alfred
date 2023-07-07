@@ -62,7 +62,7 @@ export default {
   methods: {
     openLoginModal() {
       this.$emitter.emit("openModal");
-    }
+    },
   },
 };
 </script>

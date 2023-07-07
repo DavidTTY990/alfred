@@ -73,7 +73,7 @@ export default {
     },
     countTaskFinishedRate() {
       let tasksFinishedRateNum = (this.dashboard.finishedTasksNum / this.taskData.length) * 100;
-      this.dashboard.tasksFinishedRate = tasksFinishedRateNum;
+      this.dashboard.tasksFinishedRate = Math.round(tasksFinishedRateNum);
     }
   },
   created() {
